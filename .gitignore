@@ -1,0 +1,7 @@
+data/
+data-clean/
+kaggle/
+.idea/
+.venv/
+__pycache__/
+*.csv
