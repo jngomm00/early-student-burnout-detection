@@ -9,10 +9,10 @@ Este repositorio contiene el código fuente de un trabajo centrado en la creaci�
 Este proyecto se alimenta de dos fuentes de datos principales:
 
 1. **OULAD (Open University Learning Analytics Dataset):** Es el motor principal del proyecto. Contiene datos demográficos y registros de clics diarios (VLE) de estudiantes reales.
-   * 🔗 **[Descargar OULAD Dataset aquí](https://analyse.kmi.open.ac.uk/open_dataset)**
+   * 🔗 **[Descargar OULAD Dataset aquí](https://analyse.kmi.open.ac.uk/open-dataset)**
 
 2. **Kaggle - Student Performance Dataset:** Utilizado para pruebas de contraste y experimentación secundaria con modelos de predicción de calificaciones.
-   * 🔗 **[Descargar Dataset de Kaggle aquí](PON_AQUI_EL_ENLACE_EXACTO_DE_KAGGLE)**
+   * 🔗 **[Descargar Dataset de Kaggle aquí](https://www.kaggle.com/datasets/nabeelqureshitiii/student-performance-dataset)**
 
 ---
 
