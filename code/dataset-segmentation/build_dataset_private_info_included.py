@@ -1,11 +1,9 @@
-#build_dataset.py
-
 import pandas as pd
 import numpy as np
 import os
 
-def crear_dataset_enriquecido(ruta_base_datos, ruta_salida):
-    print("Iniciando generación del dataset enriquecido...")
+def crear_dataset_enriquecido_completo(ruta_base_datos, ruta_salida):
+    print("Iniciando generación del dataset enriquecido (con variables sociodemográficas)...")
 
     # 1. Cargar todas las tablas necesarias
     print("Cargando archivos CSV...")
@@ -15,12 +13,11 @@ def crear_dataset_enriquecido(ruta_base_datos, ruta_salida):
     student_assessment = pd.read_csv(os.path.join(ruta_base_datos, 'studentAssessment.csv'))
     registration = pd.read_csv(os.path.join(ruta_base_datos, 'studentRegistration.csv'))
 
-    # 2. Filtrado inicial y privacidad
+    # 2. Filtrado inicial (Sin eliminación de datos sensibles)
     modulos_objetivo = ['BBB', 'DDD', 'FFF']
-    info_df = info_df[info_df['code_module'].isin(modulos_objetivo)]
 
-    columnas_sensibles = ['gender', 'region', 'imd_band', 'age_band', 'disability']
-    info_clean = info_df.drop(columns=columnas_sensibles).copy()
+    # Mantenemos las columnas (gender, region, imd_band, age_band, disability, etc.)
+    info_clean = info_df[info_df['code_module'].isin(modulos_objetivo)].copy()
 
     # 3. Procesamiento de VLE (Interacciones) - Ventana de 90 días
     print("Procesando interacciones (VLE)...")
@@ -51,11 +48,10 @@ def crear_dataset_enriquecido(ruta_base_datos, ruta_salida):
         fill_value=0
     ).reset_index()
 
-    nombres_semanas = {col: f'clicks_semana_{int(col)}' for col in vle_semanas_pivot.columns if isinstance(col, (int, float))}
+    nombres_semanas = {col: f'clicks_semana_{int(col)}' for col in vle_semanas_pivot.columns if
+                       isinstance(col, (int, float))}
     vle_semanas_pivot = vle_semanas_pivot.rename(columns=nombres_semanas)
-    # Guardamos los nombres para rellenar nulos más adelante
     lista_columnas_semanales = list(nombres_semanas.values())
-    # -------------------------------------------------------------
 
     # Agrupación total del estudiante
     vle_features = vle_semanal.groupby(['id_student', 'code_module', 'code_presentation']).agg(
@@ -72,8 +68,10 @@ def crear_dataset_enriquecido(ruta_base_datos, ruta_salida):
     vle_features['dias_sin_clicks_90d'] = 90 - vle_features['total_dias_activos']
 
     # Unir máximo de clicks y las columnas de cada semana
-    vle_features = pd.merge(vle_features, max_clicks_dia, on=['id_student', 'code_module', 'code_presentation'], how='left')
-    vle_features = pd.merge(vle_features, vle_semanas_pivot, on=['id_student', 'code_module', 'code_presentation'], how='left')
+    vle_features = pd.merge(vle_features, max_clicks_dia, on=['id_student', 'code_module', 'code_presentation'],
+                            how='left')
+    vle_features = pd.merge(vle_features, vle_semanas_pivot, on=['id_student', 'code_module', 'code_presentation'],
+                            how='left')
 
     # 4. Procesamiento de Evaluaciones (Assessments) - Ventana de 90 días
     print("Procesando evaluaciones y retrasos...")
@@ -108,10 +106,11 @@ def crear_dataset_enriquecido(ruta_base_datos, ruta_salida):
 
     # Añadimos las nuevas columnas semanales a la lista de columnas que deben rellenarse con 0 si son nulas
     columnas_a_rellenar = [
-        'total_clicks_90d', 'media_clicks_semanales', 'total_dias_activos', 'semanas_con_actividad',
-        'semanas_actividad_plena', 'max_clicks_1_dia', 'entregas_realizadas_90d',
-        'nota_media_90d', 'retraso_medio_dias', 'total_entregas_tardias'
-    ] + lista_columnas_semanales
+                              'total_clicks_90d', 'media_clicks_semanales', 'total_dias_activos',
+                              'semanas_con_actividad',
+                              'semanas_actividad_plena', 'max_clicks_1_dia', 'entregas_realizadas_90d',
+                              'nota_media_90d', 'retraso_medio_dias', 'total_entregas_tardias'
+                          ] + lista_columnas_semanales
 
     df_master[columnas_a_rellenar] = df_master[columnas_a_rellenar].fillna(0)
 
@@ -133,15 +132,17 @@ def crear_dataset_enriquecido(ruta_base_datos, ruta_salida):
     df_train.drop(columns=['code_module', 'code_presentation'], inplace=True)
     df_test.drop(columns=['code_module', 'code_presentation'], inplace=True)
 
-    archivo_train = os.path.join(ruta_salida, 'dataset_train_2013_enriquecido.csv')
-    archivo_test = os.path.join(ruta_salida, 'dataset_test_2014_enriquecido.csv')
+    # Modificación en el nombre de salida para distinguir el dataset completo
+    archivo_train = os.path.join(ruta_salida, 'dataset_train_2013_full.csv')
+    archivo_test = os.path.join(ruta_salida, 'dataset_test_2014_full.csv')
 
     df_train.to_csv(archivo_train, index=False)
     df_test.to_csv(archivo_test, index=False)
 
     print("-" * 50)
-    print(f"Dataset de Entrenamiento (2013) generado: {len(df_train)} filas.")
-    print(f"Dataset de Prueba (2014) generado: {len(df_test)} filas.")
+    print(f"Dataset de Entrenamiento Completo (2013) generado: {len(df_train)} filas.")
+    print(f"Dataset de Prueba Completo (2014) generado: {len(df_test)} filas.")
+    print(f"Columnas resultantes: {df_master.shape[1]}")
     print("Proceso finalizado con éxito.")
 
 
@@ -149,4 +150,4 @@ if __name__ == "__main__":
     RUTA_ORIGEN = './../../dataset/oulad/'
     RUTA_DESTINO = './../../dataset/oulad/generated'
 
-    crear_dataset_enriquecido(RUTA_ORIGEN, RUTA_DESTINO)
+    crear_dataset_enriquecido_completo(RUTA_ORIGEN, RUTA_DESTINO)
