@@ -11,7 +11,7 @@ El sistema se ha construido bajo el paradigma de **Privacy by Design (Privacidad
 Este proyecto se alimenta de dos fuentes de datos principales:
 
 1. **OULAD (Open University Learning Analytics Dataset):** Motor principal del proyecto. Contiene registros relacionales de evaluaciones y millones de interacciones diarias (logs del VLE).
-   * 🔗 **[Descargar OULAD Dataset aquí](https://analyse.kmi.open.ac.uk/open-dataset)**
+   * 🔗 **[Descargar OULAD Dataset aquí]([https://analyse.kmi.open.ac.uk/open-dataset](https://archive.ics.uci.edu/dataset/349/open+university+learning+analytics+dataset))**
    * 📂 **Ruta destino:** `dataset/oulad/raw/`
 
 2. **Kaggle - Student Performance Dataset:** Utilizado para pruebas de estrés de generalización externa y validación de la arquitectura frente a una estructura tabular diferente.
